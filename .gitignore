@@ -1,0 +1,10 @@
+.installed.cfg
+bin/
+parts/
+develop-eggs/
+*.egg-info
+ID
+TAGS
+tags
+.coverage
+htmlcov/

@@ -1,0 +1,14 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <subscriber
+      for="zope.publisher.interfaces.IStartRequestEvent"
+      handler=".longrequest.startRequestHandler"
+      />
+
+  <subscriber
+      for="zope.publisher.interfaces.IEndRequestEvent"
+      handler=".longrequest.endRequestHandler"
+      />
+
+</configure>

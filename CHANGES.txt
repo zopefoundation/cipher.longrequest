@@ -1,0 +1,44 @@
+=======
+CHANGES
+=======
+
+
+1.0.4 (unreleased)
+------------------
+
+- First public release
+
+
+1.0.3 (2012-05-22)
+------------------
+
+- Added `exclude-url-%i` options
+
+
+1.0.2 (2012-05-16)
+------------------
+
+- The original URL should be shown instead of the internal one.
+  (using HTTP_X_FORWARDED_FOR)
+
+- Drop meaningless wsgi environment variables
+
+- Only report a request over limits once.
+
+- Report the final duration of the request.
+
+- When a zope request is around
+  - Report the principal running the request.
+  - List the query/form parameters in a nicely formatted form.
+
+
+1.0.1 (2012-05-04)
+------------------
+
+- Forgot to declare the `make_filter` entry point.
+
+
+1.0.0 (2012-05-04)
+------------------
+
+- Initial release as a separate package.
