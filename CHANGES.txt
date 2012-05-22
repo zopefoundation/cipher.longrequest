@@ -3,7 +3,7 @@ CHANGES
 =======
 
 
-1.0.4 (unreleased)
+1.0.4 (2012-05-22)
 ------------------
 
 - First public release
