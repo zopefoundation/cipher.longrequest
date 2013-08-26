@@ -377,6 +377,9 @@ def doctest_RequestCheckerThread_final_event():
         form:
         >>> logger.clear()
 
+        >>> rct.getMaxRequestTime()
+        0
+
         >>> now = 130000021
 
     Here the request finishes
@@ -393,6 +396,8 @@ def doctest_RequestCheckerThread_final_event():
         http://localhost
         >>> logger.clear()
 
+        >>> rct.getMaxRequestTime()
+        27
 
     Case 2, there is a new request served by the same thread
 
@@ -448,6 +453,8 @@ def doctest_RequestCheckerThread_final_event():
         http://localhost
         >>> logger.clear()
 
+        >>> rct.getMaxRequestTime()
+        27
 
         >>> del longrequest.THREADPOOL.worker_tracker[142]
 
@@ -502,7 +509,6 @@ def doctest_RequestCheckerThread_final_event():
           Long running request finished thread_id:389 duration:27 sec
         http://localhost
         >>> logger.clear()
-
 
         >>> logger.uninstall()
         >>> longrequest.RequestCheckerThread.NOW = saveNOW

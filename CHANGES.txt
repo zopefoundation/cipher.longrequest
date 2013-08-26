@@ -6,7 +6,10 @@ CHANGES
 1.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Moved ``removeWSGIStuff`` to ``RequestCheckerThread``.
+
+- Feature: collecting maximum request times, use ``getMaxRequestTime`` to
+  retrieve
 
 
 1.0.4 (2012-05-22)

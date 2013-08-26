@@ -67,6 +67,8 @@ class RequestCheckerThread(BackgroundWorkerThread):
 
     NOW = time.time  # testing hook
 
+    maxRequestTime = 0
+
     def __init__(self, *args, **kw):
         super(RequestCheckerThread, self).__init__(*args, **kw)
         self.notified = {}
@@ -116,6 +118,15 @@ class RequestCheckerThread(BackgroundWorkerThread):
         time.sleep(TICK)
         return self.running
 
+    def prevRequestFinished(self, thread_id):
+        # notify before the fact gets deleted
+        ld = self.lastDuration[thread_id]
+        # collect stats
+        self.maxRequestTime = max(self.maxRequestTime, ld[0])
+        notify(interfaces.LongRequestFinishedEvent(
+                thread_id, ld[0], ld[2]))
+        del self.lastDuration[thread_id]
+
     def doWork(self):
         if THREADPOOL is None:
             # no threadpool yet, return ASAP
@@ -139,11 +150,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
         # clean up lastDuration dict, in case threads get killed
         for thread_id in tuple(self.lastDuration.keys()):
             if thread_id not in workingThreadIds:
-                # notify before the fact gets deleted
-                ld = self.lastDuration[thread_id]
-                notify(interfaces.LongRequestFinishedEvent(
-                        thread_id, ld[0], ld[2]))
-                del self.lastDuration[thread_id]
+                self.prevRequestFinished(thread_id)
 
         # clean up ZOPE_THREAD_REQUESTS dict, in case threads get killed
         for thread_id in tuple(ZOPE_THREAD_REQUESTS.keys()):
@@ -162,10 +169,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
                 ld = self.lastDuration[thread_id]
                 if ld[0] > duration or worker_environ is None:
                     # there was a previous request that finished
-                    notify(interfaces.LongRequestFinishedEvent(
-                        thread_id, ld[0], ld[2]))
-
-                    del self.lastDuration[thread_id]
+                    self.prevRequestFinished(thread_id)
             except KeyError:
                 pass
 
@@ -199,7 +203,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
             if bail:
                 continue
 
-            worker_environ = removeWSGIStuff(worker_environ)
+            worker_environ = self.removeWSGIStuff(worker_environ)
 
             # mmm, this does not work, I guess wsgi.input is consumed
             #form = parse_formvars(worker_environ)
@@ -227,16 +231,21 @@ class RequestCheckerThread(BackgroundWorkerThread):
             # remember the event, time_started is a sort of ID for the request
             self.notified[thread_id] = (event, time_started)
 
+    def removeWSGIStuff(self, environ):
+        rv = {}
+        for k in tuple(environ.keys()):
+            if (k.startswith('wsgi.') or k.startswith('paste.')
+                or k.startswith('weberror.')):
+                continue
+            else:
+                rv[k] = environ[k]
+        return rv
 
-def removeWSGIStuff(environ):
-    rv = {}
-    for k in tuple(environ.keys()):
-        if (k.startswith('wsgi.') or k.startswith('paste.')
-            or k.startswith('weberror.')):
-            continue
-        else:
-            rv[k] = environ[k]
-    return rv
+    def getMaxRequestTime(self, clear=False):
+        rv = self.maxRequestTime
+        if clear:
+            self.maxRequestTime = 0
+        return rv
 
 
 def startRequestHandler(event):
@@ -310,9 +319,18 @@ def startThread(site_db, site_oid, siteName, user):
 
 
 def stopThread():
+    global THREAD
     THREAD.running = False
     THREAD.join()
+    THREAD = None
 
+
+def getMaxRequestTime(clear=False):
+    global THREAD
+    if THREAD is None:
+        raise ValueError("No thread running")
+    else:
+        return THREAD.getMaxRequestTime(clear)
 
 # we need to grab the request --> threadpool from somewhere
 # there's no other chance than waiting for the first request
