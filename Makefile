@@ -1,4 +1,4 @@
-PYTHON = python2.6
+PYTHON = python2.7
 
 scripts = bin/test bin/python bin/coverage-test bin/coverage-report bin/tags
 
