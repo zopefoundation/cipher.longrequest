@@ -55,7 +55,6 @@ setup(
         'zope.component',
         'cipher.background',
         'Paste',
-        'dbgp'
     ],
     include_package_data=True,
     zip_safe=False,
