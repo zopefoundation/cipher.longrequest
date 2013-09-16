@@ -6,7 +6,10 @@ CHANGES
 1.0.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added
+  - ``getThreadsUsed``: Return the current number of working threads
+  - ``getMaxThreadsUsed``: Return the number MAX of working threads
+                           since last cleared
 
 
 1.0.6 (2013-08-28)

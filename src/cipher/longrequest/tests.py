@@ -754,6 +754,79 @@ def doctest_RequestCheckerThread_ignore_urls():
     """
 
 
+def doctest_getMaxThreadsUsed_getThreadsUsed():
+    """
+    test for getMaxThreadsUsed
+
+        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+
+        >>> longrequest.getMaxThreadsUsed()
+        Traceback (most recent call last):
+        ...
+        ValueError: No thread running
+
+        >>> longrequest.getThreadsUsed()
+        Traceback (most recent call last):
+        ...
+        ValueError: No threadpool yet!
+
+        >>> longrequest.THREAD = rct
+
+        >>> longrequest.getMaxThreadsUsed()
+        0
+
+        >>> longrequest.THREADPOOL = DummyThreadPool()
+
+        >>> longrequest.getMaxThreadsUsed()
+        0
+
+        >>> longrequest.getThreadsUsed()
+        0
+
+        >>> now = time.time()
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+
+        >>> rct.doWork()
+
+        >>> longrequest.getMaxThreadsUsed()
+        1
+
+        >>> longrequest.getThreadsUsed()
+        1
+
+        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+        >>> rct.doWork()
+
+        >>> longrequest.getMaxThreadsUsed()
+        2
+
+        >>> longrequest.getThreadsUsed()
+        2
+
+        >>> longrequest.THREADPOOL.worker_tracker.clear()
+
+        >>> longrequest.getThreadsUsed()
+        0
+
+        >>> rct.doWork()
+
+        >>> longrequest.getMaxThreadsUsed()
+        2
+
+        >>> longrequest.getMaxThreadsUsed(True)
+        2
+
+        >>> longrequest.getMaxThreadsUsed()
+        0
+
+        >>> longrequest.THREAD = None
+        >>> longrequest.THREADPOOL = None
+    """
+
+
 def doctest_make_filter():
     """
     test for make_filter

@@ -68,6 +68,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
     NOW = time.time  # testing hook
 
     maxRequestTime = 0
+    maxThreadsUsed = 0
 
     def __init__(self, *args, **kw):
         super(RequestCheckerThread, self).__init__(*args, **kw)
@@ -138,6 +139,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
 
         #allThreadIds = dict([(t.thread_id, 1) for t in THREADPOOL.workers])
         workingThreadIds = dict([(k, 1) for k in THREADPOOL.worker_tracker.keys()])
+        self.maxThreadsUsed = max(len(workingThreadIds), self.maxThreadsUsed)
 
         # THREADPOOL.worker_tracker has ONLY the threads which are
         # doing some work!
@@ -247,6 +249,12 @@ class RequestCheckerThread(BackgroundWorkerThread):
             self.maxRequestTime = 0
         return rv
 
+    def getMaxThreadsUsed(self, clear=False):
+        rv = self.maxThreadsUsed
+        if clear:
+            self.maxThreadsUsed = 0
+        return rv
+
 
 def startRequestHandler(event):
     try:
@@ -326,11 +334,31 @@ def stopThread():
 
 
 def getMaxRequestTime(clear=False):
+    """Return the MAX time of requests since last cleared"""
     global THREAD
     if THREAD is None:
         raise ValueError("No thread running")
     else:
         return THREAD.getMaxRequestTime(clear)
+
+
+def getMaxThreadsUsed(clear=False):
+    """Return the number MAX of working threads since last cleared"""
+    global THREAD
+    if THREAD is None:
+        raise ValueError("No thread running")
+    else:
+        return THREAD.getMaxThreadsUsed(clear)
+
+
+def getThreadsUsed():
+    """Return the current number of working threads"""
+    global THREADPOOL
+    if THREADPOOL is None:
+        raise ValueError("No threadpool yet!")
+    else:
+        return len(THREADPOOL.worker_tracker.keys())
+
 
 # we need to grab the request --> threadpool from somewhere
 # there's no other chance than waiting for the first request
