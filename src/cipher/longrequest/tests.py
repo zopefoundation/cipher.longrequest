@@ -1,4 +1,5 @@
 import doctest
+import logging
 import os
 import time
 
@@ -137,6 +138,7 @@ def doctest_RequestCheckerThread_nowork():
         >>> logger.clear()
 
         >>> logger.uninstall()
+        >>> longrequest.THREADPOOL = None
 
     """
 
@@ -164,6 +166,7 @@ def doctest_RequestCheckerThread_over3():
         thread_id:142
         duration:40 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -183,6 +186,7 @@ def doctest_RequestCheckerThread_over3():
         thread_id:142
         duration:40 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -216,6 +220,7 @@ def doctest_RequestCheckerThread_over2():
         thread_id:142
         duration:15 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -249,6 +254,7 @@ def doctest_RequestCheckerThread_over1():
         thread_id:142
         duration:7 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -268,11 +274,11 @@ def doctest_RequestCheckerThread_single_notification():
 
         >>> logger = addSubscribers()
 
-        >>> saveNOW = longrequest.RequestCheckerThread.NOW
+        >>> saveNOW = longrequest.NOW
 
         >>> longrequest.THREADPOOL = DummyThreadPool()
         >>> now = 130000000
-        >>> longrequest.RequestCheckerThread.NOW = lambda self: now
+        >>> longrequest.NOW = lambda: now
         >>> req = makeRequest()
         >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
@@ -286,6 +292,7 @@ def doctest_RequestCheckerThread_single_notification():
         thread_id:142
         duration:7 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -315,13 +322,14 @@ def doctest_RequestCheckerThread_single_notification():
         thread_id:142
         duration:27 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
         >>> logger.clear()
 
         >>> logger.uninstall()
-        >>> longrequest.RequestCheckerThread.NOW = saveNOW
+        >>> longrequest.NOW = saveNOW
         >>> longrequest.THREADPOOL = None
 
     """
@@ -336,11 +344,11 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> logger = addSubscribers()
 
-        >>> saveNOW = longrequest.RequestCheckerThread.NOW
+        >>> saveNOW = longrequest.NOW
 
         >>> longrequest.THREADPOOL = DummyThreadPool()
         >>> now = 130000000
-        >>> longrequest.RequestCheckerThread.NOW = lambda self: now
+        >>> longrequest.NOW = lambda: now
 
     Case 1, the current request finishes
 
@@ -357,6 +365,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:142
         duration:7 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -372,6 +381,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:142
         duration:27 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -416,6 +426,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:142
         duration:7 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -431,6 +442,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:142
         duration:27 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -476,6 +488,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:389
         duration:7 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -491,6 +504,7 @@ def doctest_RequestCheckerThread_final_event():
         thread_id:389
         duration:27 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
@@ -511,7 +525,7 @@ def doctest_RequestCheckerThread_final_event():
         >>> logger.clear()
 
         >>> logger.uninstall()
-        >>> longrequest.RequestCheckerThread.NOW = saveNOW
+        >>> longrequest.NOW = saveNOW
         >>> longrequest.THREADPOOL = None
 
     """
@@ -596,6 +610,7 @@ def doctest_RequestCheckerThread_uri():
         thread_id:142
         duration:15 sec
         URL:https://localhost/foobar?bar=42
+        threads in use:1
         environment:{'PATH_INFO': '/foobar',
          'QUERY_STRING': 'bar=42',
          'REMOTE_ADDR': '1.1.1.1',
@@ -624,6 +639,7 @@ def doctest_RequestCheckerThread_uri():
         thread_id:142
         duration:15 sec
         URL:https://foo.bar.com/bar
+        threads in use:1
         environment:{'HTTP_X_FORWARDED_FOR': 'https://foo.bar.com/bar',
          'PATH_INFO': '/foobar',
          'QUERY_STRING': 'bar=42',
@@ -665,6 +681,7 @@ def doctest_RequestCheckerThread_zope_request():
         thread_id:142
         duration:40 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:foo.admin
         form:{}
@@ -687,6 +704,7 @@ def doctest_RequestCheckerThread_zope_request():
         thread_id:142
         duration:40 sec
         URL:http://localhost
+        threads in use:1
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:foo.admin
         form:{'foobar': '42'}
@@ -741,6 +759,7 @@ def doctest_RequestCheckerThread_ignore_urls():
         thread_id:143
         duration:7 sec
         URL:https://localhost/customer/dashboard
+        threads in use:2
         environment:{'PATH_INFO': '/customer/dashboard',
          'REMOTE_ADDR': '1.1.1.1',
          'SERVER_NAME': 'localhost',
@@ -854,7 +873,131 @@ def doctest_make_filter():
         >>> [p.pattern for p in longrequest.IGNORE_URLS]
         ['.*/rest/.*', '.*/admin/.*']
 
+    """
 
+
+def doctest_getAllThreadInfo():
+    r"""
+    test for getAllThreadInfo
+
+        >>> longrequest.THREADPOOL = DummyThreadPool()
+        >>> now = time.time()
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
+        ...     'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+
+        >>> info = longrequest.getAllThreadInfo()
+        >>> print '\n--\n'.join(info)
+        thread_id:142
+        duration:7 sec
+        URL:https://localhost/rest/update-it?bar=42
+        threads in use:2
+        environment:{'PATH_INFO': '/rest/update-it',
+         'QUERY_STRING': 'bar=42',
+         'REMOTE_ADDR': '1.1.1.1',
+         'SERVER_NAME': 'localhost',
+         'SERVER_PORT': '443',
+         'wsgi.url_scheme': 'https',
+         'wsgi.version': (1, 0)}
+        username:foo.admin
+        form:{'foobar': '42'}
+        --
+        thread_id:143
+        duration:7 sec
+        URL:https://localhost/customer/dashboard
+        threads in use:2
+        environment:{'PATH_INFO': '/customer/dashboard',
+         'REMOTE_ADDR': '1.1.1.1',
+         'SERVER_NAME': 'localhost',
+         'SERVER_PORT': '443',
+         'wsgi.url_scheme': 'https',
+         'wsgi.version': (1, 0)}
+        username:
+        form:
+
+        >>> info = longrequest.getAllThreadInfo(omitThreads=(143,))
+        >>> print '\n--\n'.join(info)
+        thread_id:142
+        duration:7 sec
+        URL:https://localhost/rest/update-it?bar=42
+        threads in use:2
+        environment:{'PATH_INFO': '/rest/update-it',
+         'QUERY_STRING': 'bar=42',
+         'REMOTE_ADDR': '1.1.1.1',
+         'SERVER_NAME': 'localhost',
+         'SERVER_PORT': '443',
+         'wsgi.url_scheme': 'https',
+         'wsgi.version': (1, 0)}
+        username:foo.admin
+        form:{'foobar': '42'}
+
+        >>> longrequest.THREADPOOL = None
+    """
+
+
+def doctest_addLogEntry():
+    r"""
+    test for addLogEntry
+
+        >>> saveVERBOSE = longrequest.VERBOSE_LOG
+        >>> longrequest.VERBOSE_LOG = True
+
+        >>> longrequest.THREADPOOL = DummyThreadPool()
+        >>> now = time.time()
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
+        ...     'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+
+        >>> logger = addSubscribers()
+
+        >>> devent = interfaces.LongRequestEvent(143, 7, 'yadayada', kw, None)
+        >>> longrequest.addLogEntry(devent, logging.INFO)
+
+        >>> print logger
+        cipher.longrequest INFO
+          Long running request detected
+        thread_id:143
+        duration:7 sec
+        URL:yadayada
+        threads in use:2
+        environment:{'PATH_INFO': '/customer/dashboard',
+         'SERVER_PORT': '443',
+         'wsgi.url_scheme': 'https'}
+        username:
+        form:
+        --
+        Other threads:
+        --
+        thread_id:142
+        duration:7 sec
+        URL:https://localhost/rest/update-it?bar=42
+        threads in use:2
+        environment:{'PATH_INFO': '/rest/update-it',
+         'QUERY_STRING': 'bar=42',
+         'REMOTE_ADDR': '1.1.1.1',
+         'SERVER_NAME': 'localhost',
+         'SERVER_PORT': '443',
+         'wsgi.url_scheme': 'https',
+         'wsgi.version': (1, 0)}
+        username:foo.admin
+        form:{'foobar': '42'}
+
+        >>> logger.uninstall()
+
+        >>> longrequest.VERBOSE_LOG = saveVERBOSE
+        >>> longrequest.THREADPOOL = None
     """
 
 

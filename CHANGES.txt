@@ -9,6 +9,9 @@ CHANGES
 - Added ``finished-log-level`` to be able to set the logging level when a
   long running requests is finished.
 
+- Added ``verbose`` option, setting that on will include the other running
+  thread's infos in the log entry
+
 
 1.0.7 (2013-09-16)
 ------------------

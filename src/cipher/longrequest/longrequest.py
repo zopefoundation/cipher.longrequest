@@ -26,6 +26,7 @@ import re
 from cipher.background.thread import BackgroundWorkerThread
 from cipher.background.contextmanagers import (ZopeInteraction, ZopeTransaction)
 from paste.request import construct_url
+from paste.util.converters import asbool
 from zope.event import notify
 from zope.component import adapter
 
@@ -44,18 +45,25 @@ DURATION_LEVEL_1 = 2  # sec
 DURATION_LEVEL_2 = 10  # sec
 DURATION_LEVEL_3 = 30  # sec
 FINISHED_LOG_LEVEL = logging.INFO
+VERBOSE_LOG = False
 
 ZOPE_THREAD_REQUESTS = {}
 
 LOG_TEMPLATE = """Long running request detected
-thread_id:%(thread_id)s
+%(info)s
+%(others)s"""
+
+THREAD_TEMPLATE = """thread_id:%(thread_id)s
 duration:%(duration)s sec
 URL:%(uri)s
+threads in use:%(threadsused)s
 environment:%(worker_environ)s
 username:%(username)s
 form:%(form)s"""
 
 IGNORE_URLS = []
+
+NOW = time.time  # testing hook
 
 
 class RequestCheckerThread(BackgroundWorkerThread):
@@ -65,8 +73,6 @@ class RequestCheckerThread(BackgroundWorkerThread):
     log = LOG  # override default logger in BackgroundWorkerThread
 
     running = True
-
-    NOW = time.time  # testing hook
 
     maxRequestTime = 0
     maxThreadsUsed = 0
@@ -136,7 +142,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
 
         LOG.debug("checking request threads")
 
-        now = self.NOW()
+        now = NOW()
 
         #allThreadIds = dict([(t.thread_id, 1) for t in THREADPOOL.workers])
         workingThreadIds = dict([(k, 1) for k in THREADPOOL.worker_tracker.keys()])
@@ -273,7 +279,39 @@ def endRequestHandler(event):
         pass
 
 
-def addLogEntry(event, level):
+def getAllThreadInfo(omitThreads=()):
+    now = NOW()
+
+    infos = []
+    workers = THREADPOOL.worker_tracker.items()
+    for thread_id, (time_started, worker_environ) in workers:
+        if thread_id in omitThreads:
+            continue
+
+        # make a duplicate of worker_environ ASAP
+        worker_environ = copy.copy(worker_environ)
+
+        duration = int(now - time_started)
+
+        try:
+            uri = worker_environ['HTTP_X_FORWARDED_FOR']
+        except KeyError:
+            uri = construct_url(worker_environ)
+
+        try:
+            zope_request = ZOPE_THREAD_REQUESTS[thread_id]
+        except KeyError:
+            zope_request = None
+
+        dummyevent = interfaces.LongRequestEvent(thread_id, duration, uri,
+                                                 worker_environ, zope_request)
+
+        infos.append(getFormattedThreadinfo(dummyevent))
+
+    return infos
+
+
+def getFormattedThreadinfo(event):
     username = ''
     form = ''
     if event.zope_request is not None:
@@ -295,8 +333,21 @@ def addLogEntry(event, level):
                 uri=event.uri,
                 worker_environ=worker_environ,
                 username=username,
-                form=form)
-    LOG.log(level, LOG_TEMPLATE % data)
+                form=form,
+                threadsused=getThreadsUsed())
+    threadinfo = THREAD_TEMPLATE % data
+    return threadinfo
+
+
+def addLogEntry(event, level):
+    threadinfo = getFormattedThreadinfo(event)
+    if VERBOSE_LOG:
+        others = '\n--\n'.join(
+            ['', 'Other threads:'] +  # spacing an header
+            getAllThreadInfo(omitThreads=(event.thread_id,)))
+    else:
+        others = ''
+    LOG.log(level, LOG_TEMPLATE % dict(info=threadinfo, others=others))
 
 
 @adapter(interfaces.ILongRequestEvent)
@@ -420,6 +471,10 @@ def make_filter(app, global_conf, forceStart=False):
             FINISHED_LOG_LEVEL = logging.WARN
         if value == 'error':
             FINISHED_LOG_LEVEL = logging.ERROR
+
+    if config.has_option('cipher.longrequest', 'verbose'):
+        global VERBOSE_LOG
+        VERBOSE_LOG = asbool(config.get('cipher.longrequest', 'verbose'))
 
     global IGNORE_URLS
     i = 1
