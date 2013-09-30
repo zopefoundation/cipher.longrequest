@@ -43,6 +43,7 @@ THREADPOOL = None
 DURATION_LEVEL_1 = 2  # sec
 DURATION_LEVEL_2 = 10  # sec
 DURATION_LEVEL_3 = 30  # sec
+FINISHED_LOG_LEVEL = logging.INFO
 
 ZOPE_THREAD_REQUESTS = {}
 
@@ -315,7 +316,7 @@ def addLogEntryError(event):
 
 @adapter(interfaces.ILongRequestFinishedEvent)
 def addLogEntryFinishedInfo(event):
-    LOG.info(
+    LOG.log(FINISHED_LOG_LEVEL,
         "Long running request finished thread_id:%s duration:%s sec\n%s",
         event.thread_id, event.duration, event.uri)
 
@@ -409,6 +410,16 @@ def make_filter(app, global_conf, forceStart=False):
     if config.has_option('cipher.longrequest', 'initial-delay'):
         global INITIAL_DELAY
         INITIAL_DELAY = config.getint('cipher.longrequest', 'initial-delay')
+
+    if config.has_option('cipher.longrequest', 'finished-log-level'):
+        global FINISHED_LOG_LEVEL
+        value = config.get('cipher.longrequest', 'finished-log-level').lower()
+        if value == 'info':
+            FINISHED_LOG_LEVEL = logging.INFO
+        elif value == 'warn':
+            FINISHED_LOG_LEVEL = logging.WARN
+        if value == 'error':
+            FINISHED_LOG_LEVEL = logging.ERROR
 
     global IGNORE_URLS
     i = 1
