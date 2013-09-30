@@ -3,7 +3,7 @@ CHANGES
 =======
 
 
-1.0.8 (unreleased)
+1.0.8 (2013-09-30)
 ------------------
 
 - Added ``finished-log-level`` to be able to set the logging level when a
