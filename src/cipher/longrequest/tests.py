@@ -940,6 +940,23 @@ def doctest_getAllThreadInfo():
         >>> longrequest.THREADPOOL = None
     """
 
+def doctest_getURI():
+    r"""
+    test for getURI
+
+        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+        >>> req = makeRequest(kw)
+
+        >>> longrequest.getURI(req.environ)
+        'https://localhost/rest/update-it?bar=42'
+
+        >>> longrequest.getURI(None)
+        'n/a'
+
+        >>> longrequest.getURI({'some': 'crap'})
+        'n/a'
+    """
 
 def doctest_addLogEntry():
     r"""

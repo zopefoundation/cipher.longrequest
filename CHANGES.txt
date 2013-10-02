@@ -6,7 +6,7 @@ CHANGES
 1.0.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix ``getAllThreadInfo`` with None / borked ``worker_environ``
 
 
 1.0.8 (2013-09-30)

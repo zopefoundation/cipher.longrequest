@@ -198,10 +198,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
                 continue
 
             # construct a URL from the request
-            try:
-                uri = worker_environ['HTTP_X_FORWARDED_FOR']
-            except KeyError:
-                uri = construct_url(worker_environ)
+            uri = getURI(worker_environ)
 
             # check ignored URLs
             bail = False
@@ -279,24 +276,29 @@ def endRequestHandler(event):
         pass
 
 
+def getURI(worker_environ):
+    # worker_environ can go away anytime, protect against that
+    try:
+        uri = worker_environ['HTTP_X_FORWARDED_FOR']
+    except:
+        try:
+            uri = construct_url(worker_environ)
+        except:
+            uri = 'n/a'
+    return uri
+
+
 def getAllThreadInfo(omitThreads=()):
     now = NOW()
 
     infos = []
     workers = THREADPOOL.worker_tracker.items()
     for thread_id, (time_started, worker_environ) in workers:
-        if thread_id in omitThreads:
+        if thread_id in omitThreads or not worker_environ:
             continue
 
-        # make a duplicate of worker_environ ASAP
-        worker_environ = copy.copy(worker_environ)
-
         duration = int(now - time_started)
-
-        try:
-            uri = worker_environ['HTTP_X_FORWARDED_FOR']
-        except KeyError:
-            uri = construct_url(worker_environ)
+        uri = getURI(worker_environ)
 
         try:
             zope_request = ZOPE_THREAD_REQUESTS[thread_id]
