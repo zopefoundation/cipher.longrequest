@@ -8,3 +8,4 @@ TAGS
 tags
 .coverage
 htmlcov/
+*.pyc
