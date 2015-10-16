@@ -48,6 +48,7 @@ setup(
     extras_require=dict(
         test=[
             'zope.testing',
+            'mock',
         ],
     ),
     install_requires=[

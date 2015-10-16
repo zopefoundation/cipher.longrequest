@@ -1,7 +1,12 @@
+import collections
 import doctest
 import logging
 import os
 import time
+import sys
+import traceback
+
+import mock
 
 import zope.component
 # HACK to make sure basicmost event subscriber is installed
@@ -170,6 +175,12 @@ def doctest_RequestCheckerThread_over3():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
     Well unless DURATION_LEVEL_3 is None, it falls back to level 2
@@ -190,6 +201,12 @@ def doctest_RequestCheckerThread_over3():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> logger.uninstall()
         >>> longrequest.THREADPOOL = None
@@ -224,6 +241,12 @@ def doctest_RequestCheckerThread_over2():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> logger.uninstall()
         >>> longrequest.THREADPOOL = None
@@ -258,6 +281,12 @@ def doctest_RequestCheckerThread_over1():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> logger.uninstall()
         >>> longrequest.THREADPOOL = None
@@ -296,6 +325,12 @@ def doctest_RequestCheckerThread_single_notification():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130000001
@@ -326,6 +361,12 @@ def doctest_RequestCheckerThread_single_notification():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> logger.uninstall()
@@ -369,6 +410,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130000020
@@ -385,6 +432,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> rct.getMaxRequestTime()
@@ -430,6 +483,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130001042
@@ -446,6 +505,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130001044
@@ -492,6 +557,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130002042
@@ -508,6 +579,12 @@ def doctest_RequestCheckerThread_final_event():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
         >>> now = 130002044
@@ -618,6 +695,12 @@ def doctest_RequestCheckerThread_uri():
          'SERVER_PORT': '443'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
     Check now HTTP_X_FORWARDED_FOR
@@ -648,6 +731,12 @@ def doctest_RequestCheckerThread_uri():
          'SERVER_PORT': '443'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
 
         >>> logger.uninstall()
@@ -685,6 +774,12 @@ def doctest_RequestCheckerThread_zope_request():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:foo.admin
         form:{}
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
 
@@ -708,6 +803,12 @@ def doctest_RequestCheckerThread_zope_request():
         environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
         username:foo.admin
         form:{'foobar': '42'}
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         >>> logger.clear()
 
 
@@ -766,6 +867,12 @@ def doctest_RequestCheckerThread_ignore_urls():
          'SERVER_PORT': '443'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> logger.uninstall()
         >>> longrequest.THREADPOOL = None
@@ -907,6 +1014,12 @@ def doctest_getAllThreadInfo():
          'wsgi.version': (1, 0)}
         username:foo.admin
         form:{'foobar': '42'}
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         --
         thread_id:143
         duration:7 sec
@@ -920,6 +1033,12 @@ def doctest_getAllThreadInfo():
          'wsgi.version': (1, 0)}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> info = longrequest.getAllThreadInfo(omitThreads=(143,))
         >>> print '\n--\n'.join(info)
@@ -936,10 +1055,44 @@ def doctest_getAllThreadInfo():
          'wsgi.version': (1, 0)}
         username:foo.admin
         form:{'foobar': '42'}
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> longrequest.THREADPOOL = None
     """
 
+    
+def doctest_getThreadTraceback():
+    """Tests for getThreadTraceback
+
+    Normally, getThreadTraceback returns the traceback for the frame:
+
+        >>> print longrequest.getThreadTraceback(142)
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+
+    However, when the thread_id parameter does not match any existing
+    thread:
+
+        >>> sys._current_frames.return_value = ret = mock.MagicMock()
+        >>> ret.__getitem__.side_effect = KeyError(142)
+        >>> sys._current_frames()[142]
+        Traceback (most recent call last):
+          ...
+        KeyError: 142
+
+        >>> longrequest.getThreadTraceback(142)
+        '  ???'
+
+    """
+
+    
 def doctest_getURI():
     r"""
     test for getURI
@@ -961,7 +1114,6 @@ def doctest_getURI():
 def doctest_addLogEntry():
     r"""
     test for addLogEntry
-
         >>> saveVERBOSE = longrequest.VERBOSE_LOG
         >>> longrequest.VERBOSE_LOG = True
 
@@ -994,6 +1146,12 @@ def doctest_addLogEntry():
          'wsgi.url_scheme': 'https'}
         username:
         form:
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
         --
         Other threads:
         --
@@ -1010,6 +1168,12 @@ def doctest_addLogEntry():
          'wsgi.version': (1, 0)}
         username:foo.admin
         form:{'foobar': '42'}
+        Thread stack:
+          File "module.py", line 69, in main
+            do_stuff()
+          File "submodule.py", line 42, in helper
+            endless_loop()
+        Top of stack
 
         >>> logger.uninstall()
 
@@ -1027,8 +1191,22 @@ def setUp(test=None):
 
     longrequest.IGNORE_URLS = []
 
+    test.patcher = mock.patch("sys._current_frames")
+    test.patcher2 = mock.patch("traceback.print_stack")
+    test.patcher.start()
+    test.patcher2.start()
+    sys._current_frames.return_value = collections.defaultdict(
+        sys._getframe)
+    traceback.print_stack = lambda frame, file: file.write(
+        '  File "module.py", line 69, in main\n'
+        '    do_stuff()\n'
+        '  File "submodule.py", line 42, in helper\n'
+        '    endless_loop()\n')
 
 def tearDown(test=None):
+    test.patcher.stop()
+    test.patcher2.stop()
+
     PlacelessSetup().tearDown()
 
     longrequest.DURATION_LEVEL_1 = 2
