@@ -3,7 +3,7 @@ CHANGES
 =======
 
 
-1.0.10 (unreleased)
+1.0.10 (2015-10-23)
 -------------------
 
 - Added the thread stack trace to the log message.
