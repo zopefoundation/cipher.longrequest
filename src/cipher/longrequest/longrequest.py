@@ -20,8 +20,11 @@ import copy
 import logging
 import threading
 import time
+import io
 import pprint
 import re
+import sys
+import traceback
 
 from cipher.background.thread import BackgroundWorkerThread
 from cipher.background.contextmanagers import (ZopeInteraction, ZopeTransaction)
@@ -59,7 +62,10 @@ URL:%(uri)s
 threads in use:%(threadsused)s
 environment:%(worker_environ)s
 username:%(username)s
-form:%(form)s"""
+form:%(form)s
+Thread stack:
+%(traceback)s
+Top of stack"""
 
 IGNORE_URLS = []
 
@@ -313,6 +319,17 @@ def getAllThreadInfo(omitThreads=()):
     return infos
 
 
+def getThreadTraceback(thread_id):
+    try:
+        frame = sys._current_frames()[thread_id]
+        buf = io.BytesIO()
+        traceback.print_stack(frame, file=buf)
+        return buf.getvalue().decode('utf-8').rstrip()
+    except KeyError:
+        # if thread is already finished
+        return '  ???'
+
+
 def getFormattedThreadinfo(event):
     username = ''
     form = ''
@@ -336,6 +353,7 @@ def getFormattedThreadinfo(event):
                 worker_environ=worker_environ,
                 username=username,
                 form=form,
+                traceback=getThreadTraceback(event.thread_id),
                 threadsused=getThreadsUsed())
     threadinfo = THREAD_TEMPLATE % data
     return threadinfo
