@@ -104,3 +104,19 @@ class LongRequestFinishedEvent(object):
         self.thread_id = thread_id
         self.duration = duration
         self.uri = uri
+
+
+class ILongRequestTickEvent(zope.interface.Interface):
+    """An hook for additional processing of the thread pool
+
+    Can be used for things like monitoring the number of busy threads.
+    """
+
+    thread_pool = zope.interface.Attribute("Thread pool")
+
+
+class LongRequestTickEvent(object):
+    zope.interface.implements(ILongRequestTickEvent)
+
+    def __init__(self, thread_pool):
+        self.thread_pool = thread_pool
