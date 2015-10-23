@@ -172,6 +172,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
             if thread_id not in workingThreadIds:
                 del ZOPE_THREAD_REQUESTS[thread_id]
 
+        notify(interfaces.LongRequestTickEvent(THREADPOOL))
         workers = THREADPOOL.worker_tracker.items()
         for thread_id, (time_started, worker_environ) in workers:
             # make a duplicate of worker_environ ASAP
