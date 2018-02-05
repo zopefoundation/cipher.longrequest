@@ -1,3 +1,4 @@
+from __future__ import print_function
 import collections
 import doctest
 import logging
@@ -80,7 +81,7 @@ def doctest_ThreadpoolCatcher():
     """
     test for ThreadpoolCatcher
 
-        >>> print longrequest.THREADPOOL
+        >>> print(longrequest.THREADPOOL)
         None
 
         >>> app = DummyApplication()
@@ -91,7 +92,7 @@ def doctest_ThreadpoolCatcher():
         >>> req = makeRequest()
         >>> tc(req.environ, None)
 
-        >>> print longrequest.THREADPOOL
+        >>> print(longrequest.THREADPOOL)
         None
 
 
@@ -129,7 +130,7 @@ def doctest_RequestCheckerThread_nowork():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         <BLANKLINE>
         >>> logger.clear()
 
@@ -137,7 +138,7 @@ def doctest_RequestCheckerThread_nowork():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         >>> logger.clear()
@@ -163,7 +164,7 @@ def doctest_RequestCheckerThread_over3():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest ERROR
@@ -189,7 +190,7 @@ def doctest_RequestCheckerThread_over3():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -229,7 +230,7 @@ def doctest_RequestCheckerThread_over2():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -269,7 +270,7 @@ def doctest_RequestCheckerThread_over1():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -313,7 +314,7 @@ def doctest_RequestCheckerThread_single_notification():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -335,21 +336,21 @@ def doctest_RequestCheckerThread_single_notification():
 
         >>> now = 130000001
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         >>> logger.clear()
 
         >>> now = 130000002
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         >>> logger.clear()
 
         >>> now = 130000020
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -398,7 +399,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -420,7 +421,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> now = 130000020
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -451,7 +452,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -471,7 +472,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -493,7 +494,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> now = 130001042
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -522,7 +523,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -545,7 +546,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -567,7 +568,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> now = 130002042
         >>> rct.doWork()
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -593,7 +594,7 @@ def doctest_RequestCheckerThread_final_event():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -627,7 +628,7 @@ def doctest_RequestCheckerThread_all_levels_none():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
 
@@ -652,7 +653,7 @@ def doctest_RequestCheckerThread_no_env():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
 
@@ -679,7 +680,7 @@ def doctest_RequestCheckerThread_uri():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -714,7 +715,7 @@ def doctest_RequestCheckerThread_uri():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest WARNING
@@ -762,7 +763,7 @@ def doctest_RequestCheckerThread_zope_request():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest ERROR
@@ -791,7 +792,7 @@ def doctest_RequestCheckerThread_zope_request():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest ERROR
@@ -839,7 +840,7 @@ def doctest_RequestCheckerThread_ignore_urls():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         >>> logger.clear()
@@ -852,7 +853,7 @@ def doctest_RequestCheckerThread_ignore_urls():
 
         >>> rct.doWork()
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest DEBUG
           checking request threads
         cipher.longrequest INFO
@@ -965,16 +966,16 @@ def doctest_make_filter():
         >>> longrequest.make_filter(None, global_conf)
         <ThreadpoolCatcher>
 
-        >>> print longrequest.DURATION_LEVEL_1
+        >>> print(longrequest.DURATION_LEVEL_1)
         3
-        >>> print longrequest.DURATION_LEVEL_2
+        >>> print(longrequest.DURATION_LEVEL_2)
         7
-        >>> print longrequest.DURATION_LEVEL_3
+        >>> print(longrequest.DURATION_LEVEL_3)
         42
 
-        >>> print longrequest.INITIAL_DELAY
+        >>> print(longrequest.INITIAL_DELAY)
         11
-        >>> print longrequest.TICK
+        >>> print(longrequest.TICK)
         5
 
         >>> [p.pattern for p in longrequest.IGNORE_URLS]
@@ -1000,7 +1001,7 @@ def doctest_getAllThreadInfo():
         >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
 
         >>> info = longrequest.getAllThreadInfo()
-        >>> print '\n--\n'.join(info)
+        >>> print('\n--\n'.join(info))
         thread_id:142
         duration:7 sec
         URL:https://localhost/rest/update-it?bar=42
@@ -1041,7 +1042,7 @@ def doctest_getAllThreadInfo():
         Top of stack
 
         >>> info = longrequest.getAllThreadInfo(omitThreads=(143,))
-        >>> print '\n--\n'.join(info)
+        >>> print('\n--\n'.join(info))
         thread_id:142
         duration:7 sec
         URL:https://localhost/rest/update-it?bar=42
@@ -1065,13 +1066,13 @@ def doctest_getAllThreadInfo():
         >>> longrequest.THREADPOOL = None
     """
 
-    
+
 def doctest_getThreadTraceback():
     """Tests for getThreadTraceback
 
     Normally, getThreadTraceback returns the traceback for the frame:
 
-        >>> print longrequest.getThreadTraceback(142)
+        >>> print(longrequest.getThreadTraceback(142))
           File "module.py", line 69, in main
             do_stuff()
           File "submodule.py", line 42, in helper
@@ -1092,7 +1093,7 @@ def doctest_getThreadTraceback():
 
     """
 
-    
+
 def doctest_getURI():
     r"""
     test for getURI
@@ -1134,7 +1135,7 @@ def doctest_addLogEntry():
         >>> devent = interfaces.LongRequestEvent(143, 7, 'yadayada', kw, None)
         >>> longrequest.addLogEntry(devent, logging.INFO)
 
-        >>> print logger
+        >>> print(logger)
         cipher.longrequest INFO
           Long running request detected
         thread_id:143
@@ -1220,4 +1221,6 @@ def tearDown(test=None):
 
 
 def test_suite():
-    return doctest.DocTestSuite(setUp=setUp, tearDown=tearDown)
+    return doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
+                                optionflags=doctest.NORMALIZE_WHITESPACE)
+
