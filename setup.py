@@ -39,6 +39,11 @@ setup(
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
@@ -48,6 +53,7 @@ setup(
     extras_require=dict(
         test=[
             'zope.testing',
+            'zope.testrunner',
             'mock',
         ],
     ),
@@ -62,5 +68,7 @@ setup(
     entry_points='''
     [paste.filter_app_factory]
     longrequest= cipher.longrequest.longrequest:make_filter
+    [distutils.commands]
+    ftest = zope.testrunner.eggsupport:ftest
     '''
 )

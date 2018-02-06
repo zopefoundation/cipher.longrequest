@@ -15,7 +15,10 @@
 
 from __future__ import absolute_import
 
-import ConfigParser
+try:
+    from configparser import RawConfigParser
+except ImportError:
+    from ConfigParser import RawConfigParser
 import copy
 import logging
 import threading
@@ -323,9 +326,14 @@ def getAllThreadInfo(omitThreads=()):
 def getThreadTraceback(thread_id):
     try:
         frame = sys._current_frames()[thread_id]
-        buf = io.BytesIO()
-        traceback.print_stack(frame, file=buf)
-        return buf.getvalue().decode('utf-8').rstrip()
+        if sys.version_info[0] == 2:
+            buf = io.BytesIO()
+            traceback.print_stack(frame, file=buf)
+            return buf.getvalue().decode('utf-8').rstrip()
+        else:
+            buf = io.StringIO()
+            traceback.print_stack(frame, file=buf)
+            return buf.getvalue()
     except KeyError:
         # if thread is already finished
         return '  ???'
@@ -459,7 +467,7 @@ class ThreadpoolCatcher(object):
 
 
 def make_filter(app, global_conf, forceStart=False):
-    config = ConfigParser.RawConfigParser()
+    config = RawConfigParser()
     config.optionxform = str
     config.read(global_conf['__file__'])
 

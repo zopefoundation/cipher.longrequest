@@ -48,8 +48,8 @@ class ILongRequestEvent(zope.interface.Interface):
             required=False)
 
 
+@zope.interface.implementer(ILongRequestEvent)
 class LongRequestEvent(object):
-    zope.interface.implements(ILongRequestEvent)
 
     def __init__(self, thread_id, duration, uri, worker_environ, zope_request):
         self.thread_id = thread_id
@@ -63,24 +63,27 @@ class ILongRequestEventOver1(ILongRequestEvent):
     pass
 
 
+@zope.interface.implementer(ILongRequestEventOver1)
 class LongRequestEventOver1(LongRequestEvent):
-    zope.interface.implements(ILongRequestEventOver1)
+    pass
 
 
 class ILongRequestEventOver2(ILongRequestEvent):
     pass
 
 
+@zope.interface.implementer(ILongRequestEventOver2)
 class LongRequestEventOver2(LongRequestEvent):
-    zope.interface.implements(ILongRequestEventOver2)
+    pass
 
 
 class ILongRequestEventOver3(ILongRequestEvent):
     pass
 
 
+@zope.interface.implementer(ILongRequestEventOver3)
 class LongRequestEventOver3(LongRequestEvent):
-    zope.interface.implements(ILongRequestEventOver3)
+    pass
 
 
 class ILongRequestFinishedEvent(zope.interface.Interface):
@@ -97,8 +100,8 @@ class ILongRequestFinishedEvent(zope.interface.Interface):
             required=False)
 
 
+@zope.interface.implementer(ILongRequestFinishedEvent)
 class LongRequestFinishedEvent(object):
-    zope.interface.implements(ILongRequestFinishedEvent)
 
     def __init__(self, thread_id, duration, uri):
         self.thread_id = thread_id
@@ -115,8 +118,8 @@ class ILongRequestTickEvent(zope.interface.Interface):
     thread_pool = zope.interface.Attribute("Thread pool")
 
 
+@zope.interface.implementer(ILongRequestTickEvent)
 class LongRequestTickEvent(object):
-    zope.interface.implements(ILongRequestTickEvent)
 
     def __init__(self, thread_pool):
         self.thread_pool = thread_pool
