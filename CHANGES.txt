@@ -36,9 +36,11 @@ CHANGES
 ------------------
 
 - Added
+
   - ``getThreadsUsed``: Return the current number of working threads
+
   - ``getMaxThreadsUsed``: Return the number MAX of working threads
-                           since last cleared
+    since last cleared
 
 
 1.0.6 (2013-08-28)
