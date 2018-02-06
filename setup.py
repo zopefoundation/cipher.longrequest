@@ -22,7 +22,7 @@ def read(*rnames):
 
 setup(
     name='cipher.longrequest',
-    version='1.1.0',
+    version='1.1.1.dev0',
     url="http://pypi.python.org/pypi/cipher.longrequest/",
     author='Zope Foundation and Contributors',
     author_email='zope-dev@zope.org',
