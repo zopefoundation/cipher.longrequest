@@ -48,7 +48,7 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
-        'Framework :: Zope3'],
+        'Framework :: Zope :: 3'],
     packages=find_packages('src'),
     package_dir={'': 'src'},
     extras_require=dict(
