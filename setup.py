@@ -18,7 +18,9 @@ from setuptools import setup, find_packages
 
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
+        return f.read()
+
 
 setup(
     name='cipher.longrequest',
@@ -31,7 +33,7 @@ setup(
         read('README.txt')
         + '\n\n' +
         read('CHANGES.txt')
-        ),
+    ),
     license='ZPL 2.1',
     keywords="CipherHealth long request thread paster",
     classifiers=[
@@ -45,6 +47,9 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',

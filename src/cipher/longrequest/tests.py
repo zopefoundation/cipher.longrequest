@@ -1,10 +1,8 @@
 from __future__ import print_function
 import collections
 import doctest
-import logging
-import os
-import time
 import sys
+import time
 import traceback
 
 import mock
@@ -29,8 +27,8 @@ class DummyRequest:
 
 def makeRequest(kw=None):
     environ = {'wsgi.version': (1, 0),
-        'wsgi.url_scheme': 'http',
-        'SERVER_PORT': '80'}
+               'wsgi.url_scheme': 'http',
+               'SERVER_PORT': '80'}
     if kw is not None:
         environ.update(kw)
     environ['REMOTE_ADDR'] = '1.1.1.1'
@@ -61,13 +59,16 @@ class DummyApplication:
 
 def addSubscribers():
     zope.component.provideHandler(
-        longrequest.addLogEntryError, adapts=(interfaces.ILongRequestEventOver3,))
+        longrequest.addLogEntryError,
+        adapts=(interfaces.ILongRequestEventOver3,))
 
     zope.component.provideHandler(
-        longrequest.addLogEntryWarn, adapts=(interfaces.ILongRequestEventOver2,))
+        longrequest.addLogEntryWarn,
+        adapts=(interfaces.ILongRequestEventOver2,))
 
     zope.component.provideHandler(
-        longrequest.addLogEntryInfo, adapts=(interfaces.ILongRequestEventOver1,))
+        longrequest.addLogEntryInfo,
+        adapts=(interfaces.ILongRequestEventOver1,))
 
     zope.component.provideHandler(
         longrequest.addLogEntryFinishedInfo,
@@ -78,8 +79,7 @@ def addSubscribers():
 
 
 def doctest_ThreadpoolCatcher():
-    """
-    test for ThreadpoolCatcher
+    """Test for ThreadpoolCatcher
 
         >>> print(longrequest.THREADPOOL)
         None
@@ -121,178 +121,174 @@ def doctest_ThreadpoolCatcher():
 
 
 def doctest_RequestCheckerThread_nowork():
-    """
-    test for RequestCheckerThread, no threadpool available
+    """Test for RequestCheckerThread, no threadpool available
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        <BLANKLINE>
-        >>> logger.clear()
+    >>> print(logger)
+    <BLANKLINE>
+    >>> logger.clear()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> longrequest.THREADPOOL = DummyThreadPool()
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        >>> logger.clear()
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    >>> logger.clear()
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
     """
 
 
 def doctest_RequestCheckerThread_over3():
-    """
-    test for RequestCheckerThread, duration over DURATION_LEVEL_3
+    """Test for RequestCheckerThread, duration over DURATION_LEVEL_3
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest ERROR
-          Long running request detected
-        thread_id:142
-        duration:40 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        >>> logger.clear()
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest ERROR
+      Long running request detected
+    thread_id:142
+    duration:40 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    >>> logger.clear()
 
     Well unless DURATION_LEVEL_3 is None, it falls back to level 2
 
-        >>> longrequest.DURATION_LEVEL_3 = None
+    >>> longrequest.DURATION_LEVEL_3 = None
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest WARNING
-          Long running request detected
-        thread_id:142
-        duration:40 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest WARNING
+      Long running request detected
+    thread_id:142
+    duration:40 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
-    """
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_over2():
-    """
-    test for RequestCheckerThread, duration over DURATION_LEVEL_2
+    """Test for RequestCheckerThread, duration over DURATION_LEVEL_2
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest WARNING
-          Long running request detected
-        thread_id:142
-        duration:15 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest WARNING
+      Long running request detected
+    thread_id:142
+    duration:15 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
-    """
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_over1():
-    """
-    test for RequestCheckerThread, duration over DURATION_LEVEL_1
+    """Test for RequestCheckerThread, duration over DURATION_LEVEL_1
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest INFO
-          Long running request detected
-        thread_id:142
-        duration:7 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest INFO
+      Long running request detected
+    thread_id:142
+    duration:7 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
-    """
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_single_notification():
@@ -374,7 +370,7 @@ def doctest_RequestCheckerThread_single_notification():
         >>> longrequest.NOW = saveNOW
         >>> longrequest.THREADPOOL = None
 
-    """
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_final_event():
@@ -606,469 +602,462 @@ def doctest_RequestCheckerThread_final_event():
         >>> longrequest.NOW = saveNOW
         >>> longrequest.THREADPOOL = None
 
-    """
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_all_levels_none():
-    """
-    test for RequestCheckerThread, all levels set to none
+    """Test for RequestCheckerThread, all levels set to none
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> longrequest.DURATION_LEVEL_1 = None
-        >>> longrequest.DURATION_LEVEL_2 = None
-        >>> longrequest.DURATION_LEVEL_3 = None
+    >>> longrequest.DURATION_LEVEL_1 = None
+    >>> longrequest.DURATION_LEVEL_2 = None
+    >>> longrequest.DURATION_LEVEL_3 = None
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
     """
 
 
 def doctest_RequestCheckerThread_no_env():
-    """
-    test for RequestCheckerThread, no environ in the worker
+    """Test for RequestCheckerThread, no environ in the worker
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, {})
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, {})
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
     """
 
 
 def doctest_RequestCheckerThread_uri():
-    """
-    test for RequestCheckerThread, URI determination
+    """Test for RequestCheckerThread, URI determination
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/foobar',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/foobar',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest WARNING
-          Long running request detected
-        thread_id:142
-        duration:15 sec
-        URL:https://localhost/foobar?bar=42
-        threads in use:1
-        environment:{'PATH_INFO': '/foobar',
-         'QUERY_STRING': 'bar=42',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        >>> logger.clear()
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest WARNING
+      Long running request detected
+    thread_id:142
+    duration:15 sec
+    URL:https://localhost/foobar?bar=42
+    threads in use:1
+    environment:{'PATH_INFO': '/foobar',
+     'QUERY_STRING': 'bar=42',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    >>> logger.clear()
 
-    Check now HTTP_X_FORWARDED_FOR
+    Check now HTTP_X_FORWARDED_FOR:
 
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/foobar',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443',
-        ...     'HTTP_X_FORWARDED_FOR': 'https://foo.bar.com/bar'}
-        >>> req = makeRequest(kw)
-        >>> now = time.time()
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/foobar',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443',
+    ...     'HTTP_X_FORWARDED_FOR': 'https://foo.bar.com/bar'}
+    >>> req = makeRequest(kw)
+    >>> now = time.time()
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 15, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest WARNING
-          Long running request detected
-        thread_id:142
-        duration:15 sec
-        URL:https://foo.bar.com/bar
-        threads in use:1
-        environment:{'HTTP_X_FORWARDED_FOR': 'https://foo.bar.com/bar',
-         'PATH_INFO': '/foobar',
-         'QUERY_STRING': 'bar=42',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest WARNING
+      Long running request detected
+    thread_id:142
+    duration:15 sec
+    URL:https://foo.bar.com/bar
+    threads in use:1
+    environment:{'HTTP_X_FORWARDED_FOR': 'https://foo.bar.com/bar',
+     'PATH_INFO': '/foobar',
+     'QUERY_STRING': 'bar=42',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
     """
 
 
 def doctest_RequestCheckerThread_zope_request():
-    """
-    test for RequestCheckerThread, when a zope request is around
+    """Test for RequestCheckerThread, when a zope request is around
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> req = makeRequest()
-        >>> zope_request = DummyZopeRequest(username='foo.admin')
-        >>> longrequest.ZOPE_THREAD_REQUESTS[142] = zope_request
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> req = makeRequest()
+    >>> zope_request = DummyZopeRequest(username='foo.admin')
+    >>> longrequest.ZOPE_THREAD_REQUESTS[142] = zope_request
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest ERROR
-          Long running request detected
-        thread_id:142
-        duration:40 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:foo.admin
-        form:{}
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        >>> logger.clear()
-
-
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
-        >>> zope_request = DummyZopeRequest(username='foo.admin', form={'foobar':'42'})
-
-        >>> longrequest.ZOPE_THREAD_REQUESTS[142] = zope_request
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
-
-        >>> rct.doWork()
-
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest ERROR
-          Long running request detected
-        thread_id:142
-        duration:40 sec
-        URL:http://localhost
-        threads in use:1
-        environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
-        username:foo.admin
-        form:{'foobar': '42'}
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        >>> logger.clear()
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest ERROR
+      Long running request detected
+    thread_id:142
+    duration:40 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:foo.admin
+    form:{}
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    >>> logger.clear()
 
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> zope_request = DummyZopeRequest(username='foo.admin', form={'foobar':'42'})
 
-    """
+    >>> longrequest.ZOPE_THREAD_REQUESTS[142] = zope_request
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 40, req.environ)
+
+    >>> rct.doWork()
+
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest ERROR
+      Long running request detected
+    thread_id:142
+    duration:40 sec
+    URL:http://localhost
+    threads in use:1
+    environment:{'REMOTE_ADDR': '1.1.1.1', 'SERVER_NAME': 'localhost', 'SERVER_PORT': '80'}
+    username:foo.admin
+    form:{'foobar': '42'}
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    >>> logger.clear()
+
+
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
+
+    """  # noqa: E501 line too long
 
 
 def doctest_RequestCheckerThread_ignore_urls():
-    """
-    test for RequestCheckerThread, check ignore URLs
+    """Test for RequestCheckerThread, check ignore URLs
 
-        >>> import re
-        >>> longrequest.IGNORE_URLS = [re.compile('.*/rest/.*'),
-        ...     re.compile('.*/admin/.*')]
+    >>> import re
+    >>> longrequest.IGNORE_URLS = [re.compile('.*/rest/.*'),
+    ...     re.compile('.*/admin/.*')]
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> logger = addSubscribers()
+    >>> logger = addSubscribers()
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        >>> logger.clear()
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    >>> logger.clear()
 
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
-        ...     'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
+    ...     'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> print(logger)
-        cipher.longrequest DEBUG
-          checking request threads
-        cipher.longrequest INFO
-          Long running request detected
-        thread_id:143
-        duration:7 sec
-        URL:https://localhost/customer/dashboard
-        threads in use:2
-        environment:{'PATH_INFO': '/customer/dashboard',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> print(logger)
+    cipher.longrequest DEBUG
+      checking request threads
+    cipher.longrequest INFO
+      Long running request detected
+    thread_id:143
+    duration:7 sec
+    URL:https://localhost/customer/dashboard
+    threads in use:2
+    environment:{'PATH_INFO': '/customer/dashboard',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> logger.uninstall()
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+    >>> longrequest.THREADPOOL = None
 
     """
 
 
 def doctest_getMaxThreadsUsed_getThreadsUsed():
-    """
-    test for getMaxThreadsUsed
+    """Test for getMaxThreadsUsed
 
-        >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
+    >>> rct = longrequest.RequestCheckerThread(None, None, None, None)
 
-        >>> longrequest.getMaxThreadsUsed()
-        Traceback (most recent call last):
-        ...
-        ValueError: No thread running
+    >>> longrequest.getMaxThreadsUsed()
+    Traceback (most recent call last):
+    ...
+    ValueError: No thread running
 
-        >>> longrequest.getThreadsUsed()
-        Traceback (most recent call last):
-        ...
-        ValueError: No threadpool yet!
+    >>> longrequest.getThreadsUsed()
+    Traceback (most recent call last):
+    ...
+    ValueError: No threadpool yet!
 
-        >>> longrequest.THREAD = rct
+    >>> longrequest.THREAD = rct
 
-        >>> longrequest.getMaxThreadsUsed()
-        0
+    >>> longrequest.getMaxThreadsUsed()
+    0
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> longrequest.THREADPOOL = DummyThreadPool()
 
-        >>> longrequest.getMaxThreadsUsed()
-        0
+    >>> longrequest.getMaxThreadsUsed()
+    0
 
-        >>> longrequest.getThreadsUsed()
-        0
+    >>> longrequest.getThreadsUsed()
+    0
 
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> longrequest.getMaxThreadsUsed()
-        1
+    >>> longrequest.getMaxThreadsUsed()
+    1
 
-        >>> longrequest.getThreadsUsed()
-        1
+    >>> longrequest.getThreadsUsed()
+    1
 
-        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
-        >>> rct.doWork()
+    >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+    >>> rct.doWork()
 
-        >>> longrequest.getMaxThreadsUsed()
-        2
+    >>> longrequest.getMaxThreadsUsed()
+    2
 
-        >>> longrequest.getThreadsUsed()
-        2
+    >>> longrequest.getThreadsUsed()
+    2
 
-        >>> longrequest.THREADPOOL.worker_tracker.clear()
+    >>> longrequest.THREADPOOL.worker_tracker.clear()
 
-        >>> longrequest.getThreadsUsed()
-        0
+    >>> longrequest.getThreadsUsed()
+    0
 
-        >>> rct.doWork()
+    >>> rct.doWork()
 
-        >>> longrequest.getMaxThreadsUsed()
-        2
+    >>> longrequest.getMaxThreadsUsed()
+    2
 
-        >>> longrequest.getMaxThreadsUsed(True)
-        2
+    >>> longrequest.getMaxThreadsUsed(True)
+    2
 
-        >>> longrequest.getMaxThreadsUsed()
-        0
+    >>> longrequest.getMaxThreadsUsed()
+    0
 
-        >>> longrequest.THREAD = None
-        >>> longrequest.THREADPOOL = None
+    >>> longrequest.THREAD = None
+    >>> longrequest.THREADPOOL = None
     """
 
 
 def doctest_make_filter():
-    """
-    test for make_filter
+    """Test for make_filter
 
-        >>> here = os.path.dirname(__file__)
-        >>> cfg = os.path.join(here, 'testing', 'paster.ini')
+    >>> import os.path
+    >>> here = os.path.dirname(__file__)
+    >>> cfg = os.path.join(here, 'testing', 'paster.ini')
 
-        >>> global_conf = {'__file__': cfg, 'here': here}
+    >>> global_conf = {'__file__': cfg, 'here': here}
 
-        >>> longrequest.make_filter(None, global_conf)
-        <ThreadpoolCatcher>
+    >>> longrequest.make_filter(None, global_conf)
+    <ThreadpoolCatcher>
 
-        >>> print(longrequest.DURATION_LEVEL_1)
-        3
-        >>> print(longrequest.DURATION_LEVEL_2)
-        7
-        >>> print(longrequest.DURATION_LEVEL_3)
-        42
+    >>> print(longrequest.DURATION_LEVEL_1)
+    3
+    >>> print(longrequest.DURATION_LEVEL_2)
+    7
+    >>> print(longrequest.DURATION_LEVEL_3)
+    42
 
-        >>> print(longrequest.INITIAL_DELAY)
-        11
-        >>> print(longrequest.TICK)
-        5
+    >>> print(longrequest.INITIAL_DELAY)
+    11
+    >>> print(longrequest.TICK)
+    5
 
-        >>> [p.pattern for p in longrequest.IGNORE_URLS]
-        ['.*/rest/.*', '.*/admin/.*']
+    >>> [p.pattern for p in longrequest.IGNORE_URLS]
+    ['.*/rest/.*', '.*/admin/.*']
 
     """
 
 
 def doctest_getAllThreadInfo():
-    r"""
-    test for getAllThreadInfo
+    r"""Test for getAllThreadInfo
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
-        ...     'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
+    ...     'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
 
-        >>> info = longrequest.getAllThreadInfo()
-        >>> print('\n--\n'.join(info))
-        thread_id:142
-        duration:7 sec
-        URL:https://localhost/rest/update-it?bar=42
-        threads in use:2
-        environment:{'PATH_INFO': '/rest/update-it',
-         'QUERY_STRING': 'bar=42',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443',
-         'wsgi.url_scheme': 'https',
-         'wsgi.version': (1, 0)}
-        username:foo.admin
-        form:{'foobar': '42'}
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        --
-        thread_id:143
-        duration:7 sec
-        URL:https://localhost/customer/dashboard
-        threads in use:2
-        environment:{'PATH_INFO': '/customer/dashboard',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443',
-         'wsgi.url_scheme': 'https',
-         'wsgi.version': (1, 0)}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> info = longrequest.getAllThreadInfo()
+    >>> print('\n--\n'.join(info))
+    thread_id:142
+    duration:7 sec
+    URL:https://localhost/rest/update-it?bar=42
+    threads in use:2
+    environment:{'PATH_INFO': '/rest/update-it',
+     'QUERY_STRING': 'bar=42',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443',
+     'wsgi.url_scheme': 'https',
+     'wsgi.version': (1, 0)}
+    username:foo.admin
+    form:{'foobar': '42'}
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    --
+    thread_id:143
+    duration:7 sec
+    URL:https://localhost/customer/dashboard
+    threads in use:2
+    environment:{'PATH_INFO': '/customer/dashboard',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443',
+     'wsgi.url_scheme': 'https',
+     'wsgi.version': (1, 0)}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> info = longrequest.getAllThreadInfo(omitThreads=(143,))
-        >>> print('\n--\n'.join(info))
-        thread_id:142
-        duration:7 sec
-        URL:https://localhost/rest/update-it?bar=42
-        threads in use:2
-        environment:{'PATH_INFO': '/rest/update-it',
-         'QUERY_STRING': 'bar=42',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443',
-         'wsgi.url_scheme': 'https',
-         'wsgi.version': (1, 0)}
-        username:foo.admin
-        form:{'foobar': '42'}
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> info = longrequest.getAllThreadInfo(omitThreads=(143,))
+    >>> print('\n--\n'.join(info))
+    thread_id:142
+    duration:7 sec
+    URL:https://localhost/rest/update-it?bar=42
+    threads in use:2
+    environment:{'PATH_INFO': '/rest/update-it',
+     'QUERY_STRING': 'bar=42',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443',
+     'wsgi.url_scheme': 'https',
+     'wsgi.version': (1, 0)}
+    username:foo.admin
+    form:{'foobar': '42'}
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> longrequest.THREADPOOL = None
+    >>> longrequest.THREADPOOL = None
     """
 
 
 def doctest_getThreadTraceback():
-    """Tests for getThreadTraceback
+    """Test getThreadTraceback
 
     Normally, getThreadTraceback returns the traceback for the frame:
 
@@ -1095,91 +1084,92 @@ def doctest_getThreadTraceback():
 
 
 def doctest_getURI():
-    r"""
-    test for getURI
+    r"""Test for getURI
 
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
 
-        >>> longrequest.getURI(req.environ)
-        'https://localhost/rest/update-it?bar=42'
+    >>> longrequest.getURI(req.environ)
+    'https://localhost/rest/update-it?bar=42'
 
-        >>> longrequest.getURI(None)
-        'n/a'
+    >>> longrequest.getURI(None)
+    'n/a'
 
-        >>> longrequest.getURI({'some': 'crap'})
-        'n/a'
+    >>> longrequest.getURI({'some': 'crap'})
+    'n/a'
     """
 
+
 def doctest_addLogEntry():
-    r"""
-    test for addLogEntry
-        >>> saveVERBOSE = longrequest.VERBOSE_LOG
-        >>> longrequest.VERBOSE_LOG = True
+    r"""Test for addLogEntry
 
-        >>> longrequest.THREADPOOL = DummyThreadPool()
-        >>> now = time.time()
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
-        ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
+    >>> import logging
+    >>> saveVERBOSE = longrequest.VERBOSE_LOG
+    >>> longrequest.VERBOSE_LOG = True
 
-        >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
-        ...     'SERVER_PORT': '443'}
-        >>> req = makeRequest(kw)
-        >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
+    >>> longrequest.THREADPOOL = DummyThreadPool()
+    >>> now = time.time()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/rest/update-it',
+    ...     'QUERY_STRING': 'bar=42', 'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[142] = (now - 7, req.environ)
 
-        >>> logger = addSubscribers()
+    >>> kw = {'wsgi.url_scheme': 'https', 'PATH_INFO': '/customer/dashboard',
+    ...     'SERVER_PORT': '443'}
+    >>> req = makeRequest(kw)
+    >>> longrequest.THREADPOOL.worker_tracker[143] = (now - 7, req.environ)
 
-        >>> devent = interfaces.LongRequestEvent(143, 7, 'yadayada', kw, None)
-        >>> longrequest.addLogEntry(devent, logging.INFO)
+    >>> logger = addSubscribers()
 
-        >>> print(logger)
-        cipher.longrequest INFO
-          Long running request detected
-        thread_id:143
-        duration:7 sec
-        URL:yadayada
-        threads in use:2
-        environment:{'PATH_INFO': '/customer/dashboard',
-         'SERVER_PORT': '443',
-         'wsgi.url_scheme': 'https'}
-        username:
-        form:
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
-        --
-        Other threads:
-        --
-        thread_id:142
-        duration:7 sec
-        URL:https://localhost/rest/update-it?bar=42
-        threads in use:2
-        environment:{'PATH_INFO': '/rest/update-it',
-         'QUERY_STRING': 'bar=42',
-         'REMOTE_ADDR': '1.1.1.1',
-         'SERVER_NAME': 'localhost',
-         'SERVER_PORT': '443',
-         'wsgi.url_scheme': 'https',
-         'wsgi.version': (1, 0)}
-        username:foo.admin
-        form:{'foobar': '42'}
-        Thread stack:
-          File "module.py", line 69, in main
-            do_stuff()
-          File "submodule.py", line 42, in helper
-            endless_loop()
-        Top of stack
+    >>> devent = interfaces.LongRequestEvent(143, 7, 'yadayada', kw, None)
+    >>> longrequest.addLogEntry(devent, logging.INFO)
 
-        >>> logger.uninstall()
+    >>> print(logger)
+    cipher.longrequest INFO
+      Long running request detected
+    thread_id:143
+    duration:7 sec
+    URL:yadayada
+    threads in use:2
+    environment:{'PATH_INFO': '/customer/dashboard',
+     'SERVER_PORT': '443',
+     'wsgi.url_scheme': 'https'}
+    username:
+    form:
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
+    --
+    Other threads:
+    --
+    thread_id:142
+    duration:7 sec
+    URL:https://localhost/rest/update-it?bar=42
+    threads in use:2
+    environment:{'PATH_INFO': '/rest/update-it',
+     'QUERY_STRING': 'bar=42',
+     'REMOTE_ADDR': '1.1.1.1',
+     'SERVER_NAME': 'localhost',
+     'SERVER_PORT': '443',
+     'wsgi.url_scheme': 'https',
+     'wsgi.version': (1, 0)}
+    username:foo.admin
+    form:{'foobar': '42'}
+    Thread stack:
+      File "module.py", line 69, in main
+        do_stuff()
+      File "submodule.py", line 42, in helper
+        endless_loop()
+    Top of stack
 
-        >>> longrequest.VERBOSE_LOG = saveVERBOSE
-        >>> longrequest.THREADPOOL = None
+    >>> logger.uninstall()
+
+    >>> longrequest.VERBOSE_LOG = saveVERBOSE
+    >>> longrequest.THREADPOOL = None
     """
 
 
@@ -1204,6 +1194,7 @@ def setUp(test=None):
         '  File "submodule.py", line 42, in helper\n'
         '    endless_loop()\n')
 
+
 def tearDown(test=None):
     test.patcher.stop()
     test.patcher2.stop()
@@ -1223,4 +1214,3 @@ def tearDown(test=None):
 def test_suite():
     return doctest.DocTestSuite(setUp=setUp, tearDown=tearDown,
                                 optionflags=doctest.NORMALIZE_WHITESPACE)
-
