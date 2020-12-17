@@ -29,8 +29,9 @@ import re
 import sys
 import traceback
 
+from cipher.background.contextmanagers import ZopeInteraction
+from cipher.background.contextmanagers import ZopeTransaction
 from cipher.background.thread import BackgroundWorkerThread
-from cipher.background.contextmanagers import (ZopeInteraction, ZopeTransaction)
 from paste.request import construct_url
 from paste.util.converters import asbool
 from zope.event import notify
@@ -123,13 +124,13 @@ class RequestCheckerThread(BackgroundWorkerThread):
                                     user=self.user_name,
                                     note=self.getCleanupNote()):
                                 self.doCleanup()
-                    except:
+                    except:  # noqa: E722 do not use bare 'except'
                         # Note: log the exception while the ZODB connection
                         # is still open; we may need it for repr() of
                         # objects in various __traceback_info__s.
                         self.log.exception("Exception in %s" % self.name)
-        except:
-            self.log.exception("Exception in %s, thread terminated" % self.name)
+        except:  # noqa: E722 do not use bare 'except'
+            self.log.exception("Exception in %s, thread terminated", self.name)
 
     def scheduleNextWork(self):
         time.sleep(TICK)
@@ -140,8 +141,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
         ld = self.lastDuration[thread_id]
         # collect stats
         self.maxRequestTime = max(self.maxRequestTime, ld[0])
-        notify(interfaces.LongRequestFinishedEvent(
-                thread_id, ld[0], ld[2]))
+        notify(interfaces.LongRequestFinishedEvent(thread_id, ld[0], ld[2]))
         del self.lastDuration[thread_id]
 
     def doWork(self):
@@ -153,8 +153,9 @@ class RequestCheckerThread(BackgroundWorkerThread):
 
         now = NOW()
 
-        #allThreadIds = dict([(t.thread_id, 1) for t in THREADPOOL.workers])
-        workingThreadIds = dict([(k, 1) for k in THREADPOOL.worker_tracker.keys()])
+        #  allThreadIds = dict([(t.thread_id, 1) for t in THREADPOOL.workers])
+        workingThreadIds = dict([(k, 1)
+                                 for k in THREADPOOL.worker_tracker.keys()])
         self.maxThreadsUsed = max(len(workingThreadIds), self.maxThreadsUsed)
 
         # THREADPOOL.worker_tracker has ONLY the threads which are
@@ -222,7 +223,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
             worker_environ = self.removeWSGIStuff(worker_environ)
 
             # mmm, this does not work, I guess wsgi.input is consumed
-            #form = parse_formvars(worker_environ)
+            # form = parse_formvars(worker_environ)
 
             try:
                 zope_request = ZOPE_THREAD_REQUESTS[thread_id]
@@ -242,7 +243,8 @@ class RequestCheckerThread(BackgroundWorkerThread):
                 pass
 
             # shoot the event
-            notify(event(thread_id, duration, uri, worker_environ, zope_request))
+            notify(event(
+                thread_id, duration, uri, worker_environ, zope_request))
 
             # remember the event, time_started is a sort of ID for the request
             self.notified[thread_id] = (event, time_started)
@@ -251,7 +253,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
         rv = {}
         for k in tuple(environ.keys()):
             if (k.startswith('wsgi.') or k.startswith('paste.')
-                or k.startswith('weberror.')):
+                    or k.startswith('weberror.')):
                 continue
             else:
                 rv[k] = environ[k]
@@ -274,7 +276,7 @@ def startRequestHandler(event):
     try:
         thread = threading.currentThread()
         ZOPE_THREAD_REQUESTS[thread.thread_id] = event.request
-    except:
+    except:  # noqa: E722 do not use bare 'except'
         pass
 
 
@@ -282,7 +284,7 @@ def endRequestHandler(event):
     try:
         thread = threading.currentThread()
         del ZOPE_THREAD_REQUESTS[thread.thread_id]
-    except:
+    except:  # noqa: E722 do not use bare 'except'
         pass
 
 
@@ -290,10 +292,10 @@ def getURI(worker_environ):
     # worker_environ can go away anytime, protect against that
     try:
         uri = worker_environ['HTTP_X_FORWARDED_FOR']
-    except:
+    except:  # noqa: E722 do not use bare 'except'
         try:
             uri = construct_url(worker_environ)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             uri = 'n/a'
     return uri
 
@@ -345,16 +347,16 @@ def getFormattedThreadinfo(event):
     if event.zope_request is not None:
         try:
             username = event.zope_request.principal.id
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             pass
         try:
             form = event.zope_request.form
             form = pprint.pformat(form)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             pass
     try:
         worker_environ = pprint.pformat(event.worker_environ)
-    except:
+    except:  # noqa: E722 do not use bare 'except'
         worker_environ = event.worker_environ
     data = dict(thread_id=event.thread_id,
                 duration=event.duration,
@@ -397,8 +399,8 @@ def addLogEntryError(event):
 @adapter(interfaces.ILongRequestFinishedEvent)
 def addLogEntryFinishedInfo(event):
     LOG.log(FINISHED_LOG_LEVEL,
-        "Long running request finished thread_id:%s duration:%s sec\n%s",
-        event.thread_id, event.duration, event.uri)
+            "Long running request finished thread_id:%s duration:%s sec\n%s",
+            event.thread_id, event.duration, event.uri)
 
 
 def startThread(site_db, site_oid, siteName, user):
@@ -473,15 +475,18 @@ def make_filter(app, global_conf, forceStart=False):
 
     if config.has_option('cipher.longrequest', 'duration-level-1'):
         global DURATION_LEVEL_1
-        DURATION_LEVEL_1 = config.getint('cipher.longrequest', 'duration-level-1')
+        DURATION_LEVEL_1 = config.getint(
+            'cipher.longrequest', 'duration-level-1')
 
     if config.has_option('cipher.longrequest', 'duration-level-2'):
         global DURATION_LEVEL_2
-        DURATION_LEVEL_2 = config.getint('cipher.longrequest', 'duration-level-2')
+        DURATION_LEVEL_2 = config.getint(
+            'cipher.longrequest', 'duration-level-2')
 
     if config.has_option('cipher.longrequest', 'duration-level-3'):
         global DURATION_LEVEL_3
-        DURATION_LEVEL_3 = config.getint('cipher.longrequest', 'duration-level-3')
+        DURATION_LEVEL_3 = config.getint(
+            'cipher.longrequest', 'duration-level-3')
 
     if config.has_option('cipher.longrequest', 'tick'):
         global TICK
