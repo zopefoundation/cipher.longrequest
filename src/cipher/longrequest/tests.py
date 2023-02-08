@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import collections
 import doctest
 import sys
@@ -6,14 +7,14 @@ import time
 import traceback
 
 import mock
-
 import zope.component
 # HACK to make sure basicmost event subscriber is installed
 import zope.component.event
 from zope.testing import loggingsupport
 from zope.testing.cleanup import CleanUp as PlacelessSetup
 
-from cipher.longrequest import interfaces, longrequest
+from cipher.longrequest import interfaces
+from cipher.longrequest import longrequest
 
 
 class DummyRequest:

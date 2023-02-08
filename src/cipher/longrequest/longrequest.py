@@ -15,28 +15,30 @@
 
 from __future__ import absolute_import
 
+
 try:
     from configparser import RawConfigParser
 except ImportError:
     from ConfigParser import RawConfigParser
+
 import copy
-import logging
-import threading
-import time
 import io
+import logging
 import pprint
 import re
 import sys
+import threading
+import time
 import traceback
+
+from paste.request import construct_url
+from paste.util.converters import asbool
+from zope.component import adapter
+from zope.event import notify
 
 from cipher.background.contextmanagers import ZopeInteraction
 from cipher.background.contextmanagers import ZopeTransaction
 from cipher.background.thread import BackgroundWorkerThread
-from paste.request import construct_url
-from paste.util.converters import asbool
-from zope.event import notify
-from zope.component import adapter
-
 from cipher.longrequest import interfaces
 
 
