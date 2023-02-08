@@ -27,9 +27,9 @@ def read(*rnames):
 setup(
     name='cipher.longrequest',
     version='2.0.dev0',
-    url="http://pypi.python.org/pypi/cipher.longrequest/",
+    url="https://github.com/zopefoundation/cipher.longrequest",
     author='Zope Foundation and Contributors',
-    author_email='zope-dev@zope.org',
+    author_email='zope-dev@zope.dev',
     description="Detecting long requests LIVE, using paster",
     long_description=(
         read('README.txt')
@@ -57,6 +57,7 @@ setup(
     ],
     packages=find_packages('src'),
     package_dir={'': 'src'},
+    python_requires='>=3.7',
     extras_require=dict(
         test=[
             'zope.testing',

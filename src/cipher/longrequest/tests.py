@@ -1,12 +1,10 @@
-from __future__ import print_function
-
 import collections
 import doctest
 import sys
 import time
 import traceback
+from unittest import mock
 
-import mock
 import zope.component
 # HACK to make sure basicmost event subscriber is installed
 import zope.component.event
