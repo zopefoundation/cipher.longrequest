@@ -11,32 +11,25 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-""" """
-
-from __future__ import absolute_import
-
-try:
-    from configparser import RawConfigParser
-except ImportError:
-    from ConfigParser import RawConfigParser
 import copy
-import logging
-import threading
-import time
 import io
+import logging
 import pprint
 import re
 import sys
+import threading
+import time
 import traceback
+from configparser import RawConfigParser
+
+from paste.request import construct_url
+from paste.util.converters import asbool
+from zope.component import adapter
+from zope.event import notify
 
 from cipher.background.contextmanagers import ZopeInteraction
 from cipher.background.contextmanagers import ZopeTransaction
 from cipher.background.thread import BackgroundWorkerThread
-from paste.request import construct_url
-from paste.util.converters import asbool
-from zope.event import notify
-from zope.component import adapter
-
 from cipher.longrequest import interfaces
 
 
@@ -88,7 +81,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
     maxThreadsUsed = 0
 
     def __init__(self, *args, **kw):
-        super(RequestCheckerThread, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self.notified = {}
         self.lastDuration = {}
 
@@ -101,7 +94,7 @@ class RequestCheckerThread(BackgroundWorkerThread):
         if self.site_db is None:
             self.runNoDB()
         else:
-            super(RequestCheckerThread, self).run()
+            super().run()
 
     def runNoDB(self):
         """Main loop of the thread."""
@@ -154,8 +147,8 @@ class RequestCheckerThread(BackgroundWorkerThread):
         now = NOW()
 
         #  allThreadIds = dict([(t.thread_id, 1) for t in THREADPOOL.workers])
-        workingThreadIds = dict([(k, 1)
-                                 for k in THREADPOOL.worker_tracker.keys()])
+        workingThreadIds = {k: 1
+                            for k in THREADPOOL.worker_tracker.keys()}
         self.maxThreadsUsed = max(len(workingThreadIds), self.maxThreadsUsed)
 
         # THREADPOOL.worker_tracker has ONLY the threads which are
@@ -328,14 +321,9 @@ def getAllThreadInfo(omitThreads=()):
 def getThreadTraceback(thread_id):
     try:
         frame = sys._current_frames()[thread_id]
-        if sys.version_info[0] == 2:
-            buf = io.BytesIO()
-            traceback.print_stack(frame, file=buf)
-            return buf.getvalue().decode('utf-8').rstrip()
-        else:
-            buf = io.StringIO()
-            traceback.print_stack(frame, file=buf)
-            return buf.getvalue()
+        buf = io.StringIO()
+        traceback.print_stack(frame, file=buf)
+        return buf.getvalue()
     except KeyError:
         # if thread is already finished
         return '  ???'
@@ -447,7 +435,7 @@ def getThreadsUsed():
 # there's no other chance than waiting for the first request
 # for this we need a filter
 
-class ThreadpoolCatcher(object):
+class ThreadpoolCatcher:
     """
     This middleware will catch the paster threadpool from the first request.
     """

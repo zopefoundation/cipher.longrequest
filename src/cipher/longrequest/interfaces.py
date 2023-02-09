@@ -19,15 +19,15 @@ import zope.schema
 
 class ILongRequestEvent(zope.interface.Interface):
     thread_id = zope.schema.Int(
-            title=u'Thread ID',
+            title='Thread ID',
             required=True)
 
     duration = zope.schema.Int(
-            title=u'Duration (seconds)',
+            title='Duration (seconds)',
             required=True)
 
     uri = zope.schema.TextLine(
-            title=u'URI',
+            title='URI',
             required=False)
 
     # BIG FAT WARNING:
@@ -35,21 +35,21 @@ class ILongRequestEvent(zope.interface.Interface):
     # so it can CHANGE easily, even go away
     # (remember, the request is running in a thread)
     worker_environ = zope.schema.Field(
-            title=u'Worker environment',
-            description=u'',
+            title='Worker environment',
+            description='',
             required=False)
 
     # BIG FAT WARNING:
     # the same applies as for worker_environ
     # is None if not determinable
     zope_request = zope.schema.Field(
-            title=u'zope.publisher request',
-            description=u'',
+            title='zope.publisher request',
+            description='',
             required=False)
 
 
 @zope.interface.implementer(ILongRequestEvent)
-class LongRequestEvent(object):
+class LongRequestEvent:
 
     def __init__(self, thread_id, duration, uri, worker_environ, zope_request):
         self.thread_id = thread_id
@@ -88,20 +88,20 @@ class LongRequestEventOver3(LongRequestEvent):
 
 class ILongRequestFinishedEvent(zope.interface.Interface):
     thread_id = zope.schema.Int(
-            title=u'Thread ID',
+            title='Thread ID',
             required=True)
 
     duration = zope.schema.Int(
-            title=u'Duration (seconds)',
+            title='Duration (seconds)',
             required=True)
 
     uri = zope.schema.TextLine(
-            title=u'URI',
+            title='URI',
             required=False)
 
 
 @zope.interface.implementer(ILongRequestFinishedEvent)
-class LongRequestFinishedEvent(object):
+class LongRequestFinishedEvent:
 
     def __init__(self, thread_id, duration, uri):
         self.thread_id = thread_id
@@ -119,7 +119,7 @@ class ILongRequestTickEvent(zope.interface.Interface):
 
 
 @zope.interface.implementer(ILongRequestTickEvent)
-class LongRequestTickEvent(object):
+class LongRequestTickEvent:
 
     def __init__(self, thread_pool):
         self.thread_pool = thread_pool

@@ -14,7 +14,9 @@
 """Setup for package cipher.longrequest
 """
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages
+from setuptools import setup
 
 
 def read(*rnames):
@@ -24,10 +26,10 @@ def read(*rnames):
 
 setup(
     name='cipher.longrequest',
-    version='1.1.1.dev0',
-    url="http://pypi.python.org/pypi/cipher.longrequest/",
+    version='2.0.dev0',
+    url="https://github.com/zopefoundation/cipher.longrequest",
     author='Zope Foundation and Contributors',
-    author_email='zope-dev@zope.org',
+    author_email='zope-dev@zope.dev',
     description="Detecting long requests LIVE, using paster",
     long_description=(
         read('README.txt')
@@ -42,20 +44,20 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
-        'Framework :: Zope :: 3'],
+        'Framework :: Zope :: 3',
+    ],
     packages=find_packages('src'),
     package_dir={'': 'src'},
+    python_requires='>=3.7',
     extras_require=dict(
         test=[
             'zope.testing',
